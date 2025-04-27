@@ -64,26 +64,73 @@ const images = [
   },
 ];
 
+const container = document.querySelector(`.gallery`);
+let instance =null;
+
 function imageTemplate(image) {
-    return `<li class="gallery-item">
-  <a class="gallery-link" href="large-image.jpg">
-    <img
-      class="gallery-image"
-      src="${image.preview}"
-      data-source="${image.original}"
-      alt="${image.description}"
-    />
-  </a>
-</li>`;
+  return `<li class="gallery-item">
+     <a class="gallery-link" href="${image.original}">
+      <img
+        class="gallery-image"
+        src="${image.preview}"
+        data-source="${image.original}"
+        alt="${image.description}"
+      />
+    </a>
+  </li>`;
 }
 
 function imagesTemplate(images) {
   return images.map(imageTemplate).join('\n');
 }
 
-const markup = imagesTemplate(images);
-console.log(markup);
+function renderImages() {
+  const markup = imagesTemplate(images); 
+  container.innerHTML = markup;
+  }
+renderImages();
 
-const ulElem = document.querySelector('ul');
-ulElem.insertAdjacentHTML('beforeend', markup)
+const gallery = document.querySelector('.gallery');
+gallery.addEventListener('click', (event) => {
+  const target = event.target;
+  if (target.nodeName !== 'IMG') return;
+event.preventDefault();
+const largeImageURL = target.dataset.source;
+openModal({ original: largeImageURL });
+
+});
+
+
+function openModal(image) {
+  instance = basicLightbox.create(`
+    <div class="modal">
+         <a class="gallery-link" href="${image.original}">
+      <img
+        class="gallery-image-modal"
+        src="${image.original}"
+      />
+    </a>
+    </div>
+`, {
+    onShow: instance => {window.addEventListener('keydown', handleCloseModal)},
+  onclose: instance => {window.removeEventListener('keydown', handleCloseModal)},
+  },
+  );
+
+   instance.show()
+  }
+
+function closeModal() {
+  instance.close() 
+ }
+
+function handleCloseModal(e) {
+  if(e.code === 'Escape'){closeModal ()}
+}
+
+// container.addEventListener('click', (e) => {
+//   if(e.target === e.currentTarget) 
+//   return
+// })
+
 
